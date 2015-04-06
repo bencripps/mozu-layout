@@ -26,11 +26,12 @@
 
     DropzoneManager.prototype.initDropzones = function() {
 
-        var self = this;
+        var self = this,
+            newDz;
 
         $('.' + this.dzContainer).each(function(i, el){ 
-            var dz = self.getNewDropZone(self);
-            $(el).append(dz.$element);
+            newDz = self.getNewDropZone(self);
+            $(el).append(newDz.$element);
         });
 
         $('input[type="checkbox"]').on('change', this.toggleToolsets.bind(this));
@@ -69,9 +70,7 @@
         //if there are no dropzones
         if (!this.hasChildren('any')) {
             this.row = new Row();
-            for (var i =0; i<=1; i++) {
-                this.doInsertRow();
-            }
+            this.doInsertRow();
             this.$element.append(this.row.$element);
         }
 
@@ -84,7 +83,7 @@
 
         var col;
 
-        if (this.row) {
+        if (this.row || this.hasChildren('any-row')) {
 
             //if there is a row, but no columns, need to add existing content to col, and create empty col
             if (this.hasChildren.call(this.row, 'col').length === 0) {
@@ -142,10 +141,10 @@
         switch (type) {
 
             case 'col':
-                return this.$element.find('> .col');
+                return this.$element.find('> .' + dropzoneManager.colClassName);
 
-            case 'row':
-                return this.$element.find('> .row');
+            case 'any-row':
+                return this.$element.find('> .' + dropzoneManager.rowClassName).length > 0;
 
             case 'any':
                 return this.$element.find('.' + dropzoneManager.dzClassName).length > 0;
@@ -157,12 +156,15 @@
     };
 
     DropZone.prototype.remove = function() {
+        var emptyParent = this.$element.parent();
+
         if (this.parent.hasChildren('num') === 1) {
             this.resetParent();
         }
 
         else {
-            if (this.col) this.col.$element.remove();
+            // if the element being deleted is the only element in it's container (row or col)
+            if (emptyParent.hasClass('col') || emptyParent.hasClass('row')) emptyParent.remove();
             this.$element.remove();
             this.parent.row.rebase();
         }   
@@ -176,13 +178,16 @@
 
     DropZone.prototype.addTools = function() {
 
-        this.toolset = $('<div class="dz-tools">').append(
-                            $('<span>').html('<i class="fa fa-list"></i>').attr('class', 'add-row').on('click', this.insertRow.bind(this)),
-                            $('<span>').html('<i class="fa fa-columns"></i>').attr('class', 'add-col').on('click', this.insertCol.bind(this)));
+        this.toolset = $('<div class="dz-tools">')
+                            .append(
+                                $('<span>').html('<i class="fa fa-list"></i>').attr('class', 'add-row').on('click', this.insertRow.bind(this)),
+                                $('<span>').html('<i class="fa fa-columns"></i>').attr('class', 'add-col').on('click', this.insertCol.bind(this)));
 
         if (this.parent instanceof DropZone) {
-            this.toolset.append($('<span>').html('<i class="fa fa-edit"></i>').attr('class', 'edit-dz').on('click', this.edit.bind(this)),
-                                $('<span>').html('<i class="fa fa-remove"></i>').attr('class', 'delete-dz').on('click', this.remove.bind(this)));
+            this.toolset
+                    .append(
+                        $('<span>').html('<i class="fa fa-edit"></i>').attr('class', 'edit-dz').on('click', this.edit.bind(this)),
+                        $('<span>').html('<i class="fa fa-remove"></i>').attr('class', 'delete-dz').on('click', this.remove.bind(this)));
         }
 
         this.toolset.css('display', dropzoneManager.showtools ? 'block' : 'none');

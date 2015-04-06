@@ -3,7 +3,7 @@
     var DropzoneManager, DropZone, Row, Column, dropzoneManager;
 
     DropzoneManager = function() {
-        this.dzContainer = '.dropzone-container';
+        this.dzContainer = 'dropzone-container';
         this.dzClassName = 'dropzone';
         this.rowClassName = 'row';
         this.colClassName = 'col';
@@ -28,7 +28,7 @@
 
         var self = this;
 
-        $(this.dzContainer).each(function(i, el){ 
+        $('.' + this.dzContainer).each(function(i, el){ 
             var dz = self.getNewDropZone(self);
             $(el).append(dz.$element);
         });
@@ -65,7 +65,7 @@
     };
 
     DropZone.prototype.insertRow = function() {
-        
+
         //if there are no dropzones
         if (!this.hasChildren('any')) {
             this.row = new Row();
@@ -82,18 +82,21 @@
 
     DropZone.prototype.insertCol = function() {
 
-        //if there is a row, need to add a new col, but not a new row
+        var col;
+
         if (this.row) {
 
             //if there is a row, but no columns, need to add existing content to col, and create empty col
             if (this.hasChildren.call(this.row, 'col').length === 0) {
-                for (var i =0; i<=1; i++) {
-                    //todo: figure out how to reinsert this content
-                    // col = new Column();
-                    // newDz = dropzoneManager.getNewDropZone(this);
-                    // newDz.col = col;
-                    // col.$element.append(newDz.$element);
-                    // this.row.$element.append(col.$element);
+                for (var i=0; i<=1; i++) {
+                    if (i === 0) {
+                        col = new Column();
+                        this.col = col;
+                        this.row.$element.wrap(col.$element);
+                    }
+                    else {
+                        this.doInsertCol();
+                    }
                 }
             
             }
@@ -116,8 +119,13 @@
     };
 
     DropZone.prototype.doInsertRow = function() {
-        var newDz = dropzoneManager.getNewDropZone(this);
-        this.row.$element.append(newDz.$element);
+        var newDz = dropzoneManager.getNewDropZone(this),
+            col = new Column();
+
+        newDz.col = col;
+        col.$element.css('width', '100%');
+        col.$element.append(newDz.$element);
+        this.row.$element.append(col.$element);
     };
 
     DropZone.prototype.doInsertCol = function() {
@@ -187,7 +195,7 @@
 
     Row.prototype.rebase = function() {
         var cols = this.$element.find('> .col');
-        cols.css('width', (1 / cols.length) * 100 + '%');
+        cols.animate({'width': (1 / cols.length) * 100 + '%'});
     };
 
     $(doc).on('ready', function() {

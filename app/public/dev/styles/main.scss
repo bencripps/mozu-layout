@@ -7,7 +7,7 @@
 }
 
 .container {
-	width: 80%;
+	width: 90%;
 	margin: 0 auto;
 }
 
@@ -22,17 +22,20 @@
 }
 
 .dropzone-container {
-    // border: 1px solid gray;
-    min-height: 200px;
+    min-height: 100px;
 
     .dropzone {
         width: 100%;
-        border: 1px solid red;
-        min-height: 50px;
-        display: inline-block;
-        // &::after {
-        //     content: "dropzone";
-        // }
+        min-height: 90px;
+        border: 1px solid gray;
+
+        &.active {
+            border: 1px solid red;
+        }
+
+        &.editing {
+            border: 1px solid gray;
+        }
 
         .dz-tools {
             position: relative;
@@ -40,23 +43,30 @@
             padding-right: 8px;
             padding-top: 2px;
             display: none;
+            background-color: rgb(217, 217, 217);
+            color: #df3018;
+            border: 1px solid black;
 
             i {
                 margin: 2px;
+                font-size: 14px;
+            }
+
+            .delete-dz {
+                position: relative;
+                top: -.5px;
             }
         }
 
         .row {
             display: block;
             vertical-align: top;
-            // border: 1px solid blue;
         }
 
         .col {
             display: inline-block;
             width: 50%;
             vertical-align: top;
-            // border: 1px solid orange;
         }   
     }
 

@@ -69,8 +69,8 @@
 
         //if there are no dropzones
         if (!this.hasChildren('any')) {
+            this.row = new Row();
             for (var i = 0; i <=1; i++) {
-                this.row = new Row();
                 this.doInsertRow();
                 this.$element.append(this.row.$element);
             }
@@ -83,17 +83,21 @@
 
     DropZone.prototype.insertCol = function() {
 
-        var col;
+        var col, parentRow;
 
         if (this.hasChildren('any-row')) {
 
             //if there is a row, but no columns, need to add existing content to col, and create empty col
-            if (this.hasChildren.call(this.row, 'col').length === 0) {
+            if (this.hasChildren('row').find('> .col:not(.is-row)').length === 0) {
                 for (var i=0; i<=1; i++) {
                     if (i === 0) {
+                        //blurgh; create new col, create parent row, add content to parent row as col, reset this.row to the parent row so you can add the next col
                         col = new Column();
+                        parentRow = new Row();
                         this.col = col;
                         this.row.$element.wrap(col.$element);
+                        this.row.$element.parent().wrap(parentRow.$element);
+                        this.row.$element = this.hasChildren('row');
                     }
                     else {
                         this.doInsertCol();
@@ -124,14 +128,14 @@
             col = new Column();
 
         newDz.col = col;
-        col.$element.css('width', '100%');
+        col.$element.addClass('is-row');
         col.$element.append(newDz.$element);
         this.row.$element.append(col.$element);
     };
 
     DropZone.prototype.doInsertCol = function() {
-        var col = new Column(),
-            newDz = dropzoneManager.getNewDropZone(this);
+        var newDz = dropzoneManager.getNewDropZone(this),
+            col = new Column();
 
         newDz.col = col;
         col.$element.append(newDz.$element);
@@ -147,6 +151,9 @@
 
             case 'any-row':
                 return this.$element.find('> .' + dropzoneManager.rowClassName).length > 0;
+
+            case 'row':
+                return this.$element.find('> .' + dropzoneManager.rowClassName);
 
             case 'any':
                 return this.$element.find('.' + dropzoneManager.dzClassName).length > 0;
@@ -201,7 +208,7 @@
     };
 
     Row.prototype.rebase = function() {
-        var cols = this.$element.find('> .col');
+        var cols = this.$element.find('> .col:not(.is-row)');
         cols.animate({'width': (1 / cols.length) * 100 + '%'});
     };
 

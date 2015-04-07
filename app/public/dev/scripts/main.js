@@ -69,9 +69,11 @@
 
         //if there are no dropzones
         if (!this.hasChildren('any')) {
-            this.row = new Row();
-            this.doInsertRow();
-            this.$element.append(this.row.$element);
+            for (var i = 0; i <=1; i++) {
+                this.row = new Row();
+                this.doInsertRow();
+                this.$element.append(this.row.$element);
+            }
         }
 
         else {
@@ -83,7 +85,7 @@
 
         var col;
 
-        if (this.row || this.hasChildren('any-row')) {
+        if (this.hasChildren('any-row')) {
 
             //if there is a row, but no columns, need to add existing content to col, and create empty col
             if (this.hasChildren.call(this.row, 'col').length === 0) {
